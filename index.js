@@ -43,6 +43,8 @@ app.use(
 );
 app.use(bodyParser.json());
 
+app.get("/", (req, res) => res.send("Express on Vercel"));
+
 // Endpoint nhận vị trí từ React Native
 app.post("/api/locations", async (req, res) => {
   try {
@@ -64,3 +66,5 @@ const PORT = 3000;
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
+
+module.exports = app;
