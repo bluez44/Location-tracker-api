@@ -4,8 +4,9 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 // MongoDB URI (lấy từ MongoDB Compass)
-const MONGO_URI =
-  "mongodb+srv://vlqvinh444:QuangVinhlop97@cluster0.aycty9a.mongodb.net/";
+const env = require("dotenv");
+env.config();
+const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
