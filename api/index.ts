@@ -51,7 +51,24 @@ app.post("/api/locations", async (req, res) => {
       });
     }
 
-    const { userId, latitude, longitude, timestamp } = req.body;
+    const {
+      userId,
+      latitude,
+      longitude,
+      timestamp,
+      city,
+      country,
+      district,
+      formattedAddress,
+      isoCountryCode,
+      name,
+      postalCode,
+      region,
+      street,
+      streetNumber,
+      subregion,
+      timezone,
+    } = req.body;
 
     // Đảm bảo chỉ chạy đoạn này nếu kết nối thành công
     const newLocation = new LocationModel({
@@ -59,6 +76,18 @@ app.post("/api/locations", async (req, res) => {
       latitude,
       longitude,
       timestamp,
+      city,
+      country,
+      district,
+      formattedAddress,
+      isoCountryCode,
+      name,
+      postalCode,
+      region,
+      street,
+      streetNumber,
+      subregion,
+      timezone,
     });
 
     const savedLocation = await newLocation.save();
@@ -73,6 +102,5 @@ const PORT = 3000;
 app.listen(PORT, () =>
   console.log(`🚀 Server running on http://localhost:${PORT}`)
 );
-
 
 module.exports = app;
