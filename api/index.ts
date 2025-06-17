@@ -7,6 +7,23 @@ const dotenv = require("dotenv");
 dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
 
+// Kết nối MongoDB và khởi động server sau khi kết nối thành công
+mongoose
+  .connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 30000, // Tăng timeout lên 30 giây
+  })
+  .then(() => {
+    console.log("✅ MongoDB connected");
+    const PORT = 3000;
+    app.listen(PORT, () =>
+      console.log(`🚀 Server running on http://localhost:${PORT}`)
+    );
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1); // Thoát server nếu kết nối thất bại
+  });
+
 const app = express();
 app.use(
   cors({
@@ -61,24 +78,5 @@ app.post("/api/locations", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// Kết nối MongoDB và khởi động server sau khi kết nối thành công
-mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000, // Tăng timeout lên 30 giây
-  })
-  .then(() => {
-    console.log("✅ MongoDB connected");
-    const PORT = 3000;
-    app.listen(PORT, () =>
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-    );
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err.message);
-    process.exit(1); // Thoát server nếu kết nối thất bại
-  });
 
 module.exports = app;
