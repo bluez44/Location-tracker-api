@@ -7,23 +7,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
 
-// Kết nối MongoDB và khởi động server sau khi kết nối thành công
-mongoose
-  .connect(MONGO_URI, {
-    serverSelectionTimeoutMS: 30000, // Tăng timeout lên 30 giây
-  })
-  .then(() => {
-    console.log("✅ MongoDB connected");
-    const PORT = 3000;
-    app.listen(PORT, () =>
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-    );
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err.message);
-    process.exit(1); // Thoát server nếu kết nối thất bại
-  });
-
 const app = express();
 app.use(
   cors({
@@ -60,23 +43,37 @@ app.get("/", (req, res) => res.send("Express on Vercel"));
 
 // Endpoint nhận vị trí
 app.post("/api/locations", async (req, res) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({ error: "Database not connected" });
-  }
-
   try {
+    // Nếu chưa kết nối thì kết nối và chờ kết nối thành công
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 10000, // 10s timeout
+      });
+    }
+
     const { userId, latitude, longitude, timestamp } = req.body;
+
+    // Đảm bảo chỉ chạy đoạn này nếu kết nối thành công
     const newLocation = new LocationModel({
       userId,
       latitude,
       longitude,
       timestamp,
     });
+
     const savedLocation = await newLocation.save();
-    res.status(201).json({ message: `Location saved`, data: savedLocation });
+    res.status(201).json({ message: "Location saved", data: savedLocation });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // Bắt tất cả lỗi: kết nối DB, lưu dữ liệu, hoặc lỗi không mong muốn
+    res.status(500).json({ error: err.message || "Internal Server Error" });
   }
 });
+
+
+const PORT = 3000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
+
 
 module.exports = app;
