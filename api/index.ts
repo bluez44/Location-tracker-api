@@ -91,10 +91,10 @@ app.post("/api/locations", async (req, res) => {
     });
 
     const savedLocation = await newLocation.save();
-    res.status(201).json({ message: "Location saved", data: savedLocation });
+    res.status(200).json({ message: "Location saved", data: savedLocation, status: 200 });
   } catch (err) {
     // Bắt tất cả lỗi: kết nối DB, lưu dữ liệu, hoặc lỗi không mong muốn
-    res.status(500).json({ error: err.message || "Internal Server Error" });
+    res.status(500).json({ error: err.message || "Internal Server Error", status: 500 });
   }
 });
 
