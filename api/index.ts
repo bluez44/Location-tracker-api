@@ -44,6 +44,13 @@ app.get("/", (req, res) => res.send("Express on Vercel"));
 // Endpoint nhận vị trí
 app.post("/api/locations", async (req, res) => {
   try {
+    // Nếu chưa kết nối thì kết nối và chờ kết nối thành công
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 10000, // 10s timeout
+      });
+    }
+
     const {
       userId,
       latitude,
@@ -62,38 +69,6 @@ app.post("/api/locations", async (req, res) => {
       subregion,
       timezone,
     } = req.body;
-
-    let { prevLatitude, prevLongitude } = JSON.parse(
-      window.localStorage.getItem("location") ||
-        JSON.stringify({
-          prevLatitude: null,
-          prevLongitude: null,
-        })
-    );
-
-    if(prevLatitude !== latitude || prevLongitude !== longitude) {
-      prevLatitude = latitude;
-      prevLongitude = longitude;
-      window.localStorage.setItem(
-        "location",
-        JSON.stringify({
-          prevLatitude,
-          prevLongitude,
-        })
-      );
-    }
-
-    if(prevLatitude === latitude && prevLongitude === longitude) {
-      return res.status(201).json({ message: "Location not changed", status: 201 });
-    }
-
-    // Nếu chưa kết nối thì kết nối và chờ kết nối thành công
-    if (mongoose.connection.readyState !== 1) {
-      await mongoose.connect(MONGO_URI, {
-        serverSelectionTimeoutMS: 10000, // 10s timeout
-      });
-    }
-
 
     // Đảm bảo chỉ chạy đoạn này nếu kết nối thành công
     const newLocation = new LocationModel({
