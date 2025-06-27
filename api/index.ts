@@ -47,7 +47,7 @@ app.post("/api/locations", async (req, res) => {
     // Nếu chưa kết nối thì kết nối và chờ kết nối thành công
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(MONGO_URI, {
-        serverSelectionTimeoutMS: 10000, // 10s timeout
+        serverSelectionTimeoutMS: 20000, // 10s timeout
       });
     }
 
@@ -102,6 +102,32 @@ app.post("/api/locations", async (req, res) => {
       .json({ message: "Location saved", data: savedLocation, status: 200 });
   } catch (err) {
     // Bắt tất cả lỗi: kết nối DB, lưu dữ liệu, hoặc lỗi không mong muốn
+    res
+      .status(500)
+      .json({ error: err.message || "Internal Server Error", status: 500 });
+  }
+});
+
+app.get("/api/locations", async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 20000, // 20s timeout
+      });
+    }
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const locations = await LocationModel.find({
+      timestamp: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    res.status(200).json({ data: locations, status: 200 });
+  } catch (err) {
     res
       .status(500)
       .json({ error: err.message || "Internal Server Error", status: 500 });
