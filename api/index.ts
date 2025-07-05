@@ -34,6 +34,7 @@ const LocationSchema = new mongoose.Schema({
   streetNumber: String,
   subregion: String,
   timezone: String,
+  vehicelNumber: String
 });
 
 const LocationModel = mongoose.model("Location", LocationSchema);
@@ -68,6 +69,7 @@ app.post("/api/locations", async (req, res) => {
       streetNumber,
       subregion,
       timezone,
+      vehicelNumber
     } = req.body;
 
     if (!latitude || !longitude) {
@@ -94,6 +96,7 @@ app.post("/api/locations", async (req, res) => {
       streetNumber,
       subregion,
       timezone,
+      vehicelNumber,
     });
 
     const savedLocation = await newLocation.save();
