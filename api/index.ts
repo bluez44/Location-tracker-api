@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
+const PORT = process.env.PORT;
 
 const app = express();
 app.use(
@@ -34,7 +35,7 @@ const LocationSchema = new mongoose.Schema({
   streetNumber: String,
   subregion: String,
   timezone: String,
-  vehicleNumber: String
+  vehicleNumber: String,
 });
 
 const LocationModel = mongoose.model("Location", LocationSchema);
@@ -69,7 +70,7 @@ app.post("/api/locations", async (req, res) => {
       streetNumber,
       subregion,
       timezone,
-      vehicleNumber
+      vehicleNumber,
     } = req.body;
 
     if (!latitude || !longitude) {
@@ -119,14 +120,8 @@ app.get("/api/locations", async (req, res) => {
       });
     }
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-
     const locations = await LocationModel.find({
-      timestamp: { $gte: startOfDay, $lte: endOfDay },
+      vehicleNumber: req.query.vehicleNumber,
     });
 
     res.status(200).json({ data: locations, status: 200 });
@@ -137,7 +132,54 @@ app.get("/api/locations", async (req, res) => {
   }
 });
 
-const PORT = 3000;
+app.get("/api/locations/today", async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 20000, // 20s timeout
+      });
+    }
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const locations = await LocationModel.find({
+      timestamp: { $gte: startOfDay, $lte: endOfDay },
+      vehicleNumber: req.query.vehicleNumber,
+    });
+
+    res.status(200).json({ data: locations, status: 200 });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: err.message || "Internal Server Error", status: 500 });
+  }
+});
+
+app.get("/api/locations/date-range", async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 20000, // 20s timeout
+      });
+    }
+
+    const locations = await LocationModel.find({
+      timestamp: { $gte: req.query.startDate, $lte: req.query.endDate },
+      vehicleNumber: req.query.vehicleNumber,
+    });
+
+    res.status(200).json({ data: locations, status: 200 });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: err.message || "Internal Server Error", status: 500 });
+  }
+});
+
 app.listen(PORT, () =>
   console.log(`🚀 Server running on http://localhost:${PORT}`)
 );
