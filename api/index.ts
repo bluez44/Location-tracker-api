@@ -123,7 +123,7 @@ app.get("/api/locations", async (req, res) => {
     const locations = await LocationModel.find({
       vehicleNumber: req.query.vehicleNumber,
     })
-      .sort({ timestamp: 1 })
+      .sort({ timestamp: -1 })
       .limit(req.query.limit || 0);
 
     locations.sort((a, b) => {
