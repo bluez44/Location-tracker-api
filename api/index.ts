@@ -1,5 +1,3 @@
-import { start } from "repl";
-
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -156,8 +154,12 @@ app.get("/api/locations/today", async (req, res) => {
       timestamp: { $gte: startOfDay, $lte: endOfDay },
       vehicleNumber: req.query.vehicleNumber,
     })
-      .sort({ timestamp: 1 })
+      .sort({ timestamp: -1 })
       .limit(req.query.limit || 0);
+
+    locations.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
 
     res.status(200).json({
       data: locations,
@@ -194,8 +196,12 @@ app.get("/api/locations/date-range", async (req, res) => {
       timestamp: { $gte: startDate, $lte: endDate },
       vehicleNumber: req.query.vehicleNumber,
     })
-      .sort({ timestamp: 1 })
+      .sort({ timestamp: -1 })
       .limit(req.query.limit || 0);
+
+    locations.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
 
     res.status(200).json({
       data: locations,
