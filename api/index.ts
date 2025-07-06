@@ -155,7 +155,14 @@ app.get("/api/locations/today", async (req, res) => {
       .sort({ timestamp: 1 })
       .limit(req.query.limit || 0);
 
-    res.status(200).json({ data: locations, status: 200 });
+    res.status(200).json({
+      data: locations,
+      status: 200,
+      date: {
+        start: startOfDay,
+        end: endOfDay,
+      },
+    });
   } catch (err) {
     res
       .status(500)
@@ -187,7 +194,14 @@ app.get("/api/locations/date-range", async (req, res) => {
       .sort({ timestamp: 1 })
       .limit(req.query.limit || 0);
 
-    res.status(200).json({ data: locations, status: 200 });
+    res.status(200).json({
+      data: locations,
+      status: 200,
+      date: {
+        start: startDate,
+        end: endDate,
+      },
+    });
   } catch (err) {
     res
       .status(500)
