@@ -126,6 +126,10 @@ app.get("/api/locations", async (req, res) => {
       .sort({ timestamp: 1 })
       .limit(req.query.limit || 0);
 
+    locations.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
+
     res.status(200).json({ data: locations, status: 200 });
   } catch (err) {
     res
