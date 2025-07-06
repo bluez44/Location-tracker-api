@@ -122,7 +122,9 @@ app.get("/api/locations", async (req, res) => {
 
     const locations = await LocationModel.find({
       vehicleNumber: req.query.vehicleNumber,
-    });
+    })
+      .sort({ timestamp: 1 })
+      .limit(req.query.limit || 0);
 
     res.status(200).json({ data: locations, status: 200 });
   } catch (err) {
@@ -149,7 +151,9 @@ app.get("/api/locations/today", async (req, res) => {
     const locations = await LocationModel.find({
       timestamp: { $gte: startOfDay, $lte: endOfDay },
       vehicleNumber: req.query.vehicleNumber,
-    });
+    })
+      .sort({ timestamp: 1 })
+      .limit(req.query.limit || 0);
 
     res.status(200).json({ data: locations, status: 200 });
   } catch (err) {
@@ -167,10 +171,18 @@ app.get("/api/locations/date-range", async (req, res) => {
       });
     }
 
+    const startDate = new Date(req.query.startDate);
+    const endDate = new Date(req.query.endDate);
+
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
     const locations = await LocationModel.find({
-      timestamp: { $gte: req.query.startDate, $lte: req.query.endDate },
+      timestamp: { $gte: startDate, $lte: endDate },
       vehicleNumber: req.query.vehicleNumber,
-    });
+    })
+      .sort({ timestamp: 1 })
+      .limit(req.query.limit || 0);
 
     res.status(200).json({ data: locations, status: 200 });
   } catch (err) {
