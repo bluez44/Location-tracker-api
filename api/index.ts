@@ -1,3 +1,5 @@
+import { start } from "repl";
+
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -144,9 +146,11 @@ app.get("/api/locations/today", async (req, res) => {
 
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
+    startOfDay.setTime(startOfDay.getTime() - 7 * 60 * 60 * 1000); // lùi 7 giờ
 
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
+    endOfDay.setTime(endOfDay.getTime() - 7 * 60 * 60 * 1000); // lùi 7 giờ
 
     const locations = await LocationModel.find({
       timestamp: { $gte: startOfDay, $lte: endOfDay },
@@ -179,13 +183,12 @@ app.get("/api/locations/date-range", async (req, res) => {
     }
 
     const startDate = new Date(req.query.startDate);
-    const endDate = new Date(req.query.endDate);
-
     startDate.setHours(0, 0, 0, 0);
-    startDate.setDate(startDate.getDate() - 1);
+    startDate.setTime(startDate.getTime() - 7 * 60 * 60 * 1000); // lùi 7 giờ
 
-    endDate.setHours(23, 59, 59, 999);
-    endDate.setDate(endDate.getDate() - 1);
+    const endDate = new Date(req.query.endDate);
+    endDate.setHours(0, 0, 0, 0);
+    endDate.setTime(endDate.getTime() - 7 * 60 * 60 * 1000); // lùi 7 giờ
 
     const locations = await LocationModel.find({
       timestamp: { $gte: startDate, $lte: endDate },
