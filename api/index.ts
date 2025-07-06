@@ -175,7 +175,10 @@ app.get("/api/locations/date-range", async (req, res) => {
     const endDate = new Date(req.query.endDate);
 
     startDate.setHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() - 1);
+
     endDate.setHours(23, 59, 59, 999);
+    endDate.setDate(endDate.getDate() - 1);
 
     const locations = await LocationModel.find({
       timestamp: { $gte: startDate, $lte: endDate },
