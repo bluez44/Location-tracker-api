@@ -22,6 +22,8 @@ const LocationSchema = new mongoose.Schema({
   userId: String,
   latitude: Number,
   longitude: Number,
+  heading: Number,
+  speed: Number,
   timestamp: Date,
   city: String,
   country: String,
@@ -54,23 +56,8 @@ app.post("/api/locations", async (req, res) => {
     }
 
     const {
-      userId,
       latitude,
-      longitude,
-      timestamp,
-      city,
-      country,
-      district,
-      formattedAddress,
-      isoCountryCode,
-      name,
-      postalCode,
-      region,
-      street,
-      streetNumber,
-      subregion,
-      timezone,
-      vehicleNumber,
+      longitude
     } = req.body;
 
     if (!latitude || !longitude) {
@@ -81,23 +68,7 @@ app.post("/api/locations", async (req, res) => {
 
     // Đảm bảo chỉ chạy đoạn này nếu kết nối thành công
     const newLocation = new LocationModel({
-      userId,
-      latitude,
-      longitude,
-      timestamp,
-      city,
-      country,
-      district,
-      formattedAddress,
-      isoCountryCode,
-      name,
-      postalCode,
-      region,
-      street,
-      streetNumber,
-      subregion,
-      timezone,
-      vehicleNumber,
+      ...req.body
     });
 
     const savedLocation = await newLocation.save();
